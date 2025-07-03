@@ -37,13 +37,19 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    // TODO: Implement actual formatting functionality
-    std::cout << "Zensep formatter - functionality coming soon!\n";
-    std::cout << "Would format " << files.size() << " file(s)";
-    if (in_place) std::cout << " in-place";
-    if (dry_run) std::cout << " (dry-run)";
-    if (!lines_range.empty()) std::cout << " lines " << lines_range;
-    std::cout << "\n";
+    // Process each file - break on first error
+    int result = 0;
+    for (const auto& file : files) {
+        const char* output_file = in_place ? file.c_str() : nullptr;
+        const char* range = lines_range.empty() ? nullptr : lines_range.c_str();
+        
+        result = format_file(file.c_str(), output_file, range, dry_run ? 1 : 0);
+        
+        if (result != 0) {
+            std::cerr << "Error formatting file: " << file << " (exit code: " << result << ")\n";
+            break; // Break on error, let fall-through handle return
+        }
+    }
     
-    return 0;
+    return result;
 }

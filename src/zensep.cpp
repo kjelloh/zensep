@@ -1,5 +1,12 @@
 #include <iostream>
+#include <fstream>
+#include <filesystem>
+#include <string>
+#include <utility>
 #include "zensep.h"
+
+// C++ implementation namespace
+namespace zensep {
 
 
 
@@ -113,8 +120,71 @@ void print_build_info(){
     #endif
 }
 
-void zensep_print_vector(const std::vector<std::string> &strings) {
-    for(std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it) {
-        std::cout << "zensep/0.0 " << *it << std::endl;
+// Add the missing format_file function to namespace zensep
+void format_file(const std::filesystem::path& input_file, 
+                std::ostream& output_stream,
+                const std::string& lines_range,
+                bool dry_run) {
+    
+    // Read input file
+    std::ifstream input(input_file);
+    if (!input.is_open()) {
+        throw std::runtime_error("Cannot open file: " + input_file.string());
+    }
+    
+    if (dry_run) {
+        output_stream << "DRY RUN: Would format " << input_file.filename().string();
+        if (!lines_range.empty()) {
+            output_stream << " (lines " << lines_range << ")";
+        }
+        output_stream << "\n";
+        output_stream << "No changes would be made (no-op formatter)\n";
+        return;
+    }
+    
+    // Read and output file line by line (no-op for now)
+    std::string line;
+    while (std::getline(input, line)) {
+        // TODO: Add actual formatting logic here
+        // For now, just pass through unchanged
+        output_stream << line << "\n";
+    }
+}
+
+} // end namespace zensep
+
+// C API implementations that call the C++ versions
+void print_build_info(void) {
+    zensep::print_build_info();
+}
+
+int format_file(const char* input_filename, 
+               const char* output_filename,
+               const char* lines_range,
+               int dry_run) {
+    try {
+        std::filesystem::path input_path(input_filename);
+        std::string range_str = lines_range ? lines_range : "";
+        bool is_dry_run = (dry_run != 0);
+        
+        if (output_filename) {
+            // Output to file (in-place)
+            std::ofstream output_file(output_filename);
+            if (!output_file.is_open()) {
+                return 2; // Error opening output file
+            }
+            zensep::format_file(input_path, output_file, range_str, is_dry_run);
+        } else {
+            // Output to stdout
+            zensep::format_file(input_path, std::cout, range_str, is_dry_run);
+        }
+        
+        return 0; // Success
+    } catch (const std::filesystem::filesystem_error&) {
+        return 2; // File system error (file not found, permission denied, etc.)
+    } catch (const std::invalid_argument&) {
+        return 3; // Invalid line range format
+    } catch (...) {
+        return 1; // General error
     }
 }
