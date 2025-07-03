@@ -10,5 +10,5 @@
   #define ZENSEP_EXPORT
 #endif
 
-ZENSEP_EXPORT void zensep();
+ZENSEP_EXPORT void print_build_info();
 ZENSEP_EXPORT void zensep_print_vector(const std::vector<std::string> &strings);

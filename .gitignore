@@ -5,7 +5,7 @@ CMakeUserPresets.json
 // Project environment
 build/
 workspace/
-preset.txt
+cmake_preset.txt
 
 
 // CLion environment

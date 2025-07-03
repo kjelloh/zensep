@@ -3,7 +3,7 @@
 
 
 
-void zensep(){
+void print_build_info(){
     
 
     #ifdef NDEBUG

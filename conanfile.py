@@ -20,6 +20,10 @@ class zensepRecipe(ConanFile):
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = "CMakeLists.txt", "src/*"
 
+    def requirements(self):
+        self.requires("spdlog/1.12.0")
+        self.requires("cli11/2.3.2")
+
     def layout(self):
         cmake_layout(self)
 
