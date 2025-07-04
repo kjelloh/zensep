@@ -20,8 +20,16 @@ endif()
 
 find_package(spdlog REQUIRED)
 find_package(CLI11 REQUIRED)
+find_package(GTest REQUIRED)
 
-add_executable(zensep src/zensep.cpp src/main.cpp)
+add_executable(zensep 
+    src/zensep.cpp 
+    src/main.cpp
+    src/test/test_runner.cpp
+    src/test/test_atomics.cpp
+    src/test/test_integrations.cpp
+    src/test/test_fixtures.cpp
+)
 
 # Pass version information as compile definitions
 target_compile_definitions(zensep PRIVATE 
@@ -32,6 +40,8 @@ target_compile_definitions(zensep PRIVATE
 target_link_libraries(zensep 
     spdlog::spdlog
     CLI11::CLI11
+    GTest::gtest
+    GTest::gtest_main
 )
 
 

@@ -1,5 +1,6 @@
 #include "zensep.h"
 #include "version.h"
+#include "test/test_runner.hpp"
 #include <CLI/CLI.hpp>
 #include <iostream>
 #include <vector>
@@ -14,8 +15,9 @@ int main(int argc, char** argv) {
     bool in_place = false;
     bool dry_run = false;
     bool show_build_info = false;
+    bool run_tests = false;
     std::string lines_range;
-    
+
     // Positional arguments for files (standard formatter behavior)
     app.add_option("files", files, "Input files to format");
     
@@ -24,12 +26,18 @@ int main(int argc, char** argv) {
     app.add_option("--lines", lines_range, "Format specific line range (start:end)");
     app.add_flag("-n,--dry-run", dry_run, "Show changes without modifying files");
     app.add_flag("--build-info", show_build_info, "Show detailed build and compiler information");
-    
+    app.add_flag("--test", run_tests, "Run all tests and exit");
+
     CLI11_PARSE(app, argc, argv);
     
     if (show_build_info) {
         print_build_info();
         return 0;
+    }
+    
+    if (run_tests) {
+        bool tests_passed = tests::run_all();
+        return tests_passed ? 0 : 1;
     }
     
     if (files.empty()) {
