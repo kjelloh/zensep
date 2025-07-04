@@ -24,6 +24,7 @@ class zensepRecipe(ConanFile):
         self.requires("spdlog/1.12.0")
         self.requires("cli11/2.3.2")
         self.requires("gtest/1.14.0")
+        self.requires("immer/0.8.1")
 
     def layout(self):
         cmake_layout(self)

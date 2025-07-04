@@ -21,6 +21,7 @@ endif()
 find_package(spdlog REQUIRED)
 find_package(CLI11 REQUIRED)
 find_package(GTest REQUIRED)
+find_package(immer REQUIRED)
 
 add_executable(zensep 
     src/zensep.cpp 
@@ -42,6 +43,7 @@ target_link_libraries(zensep
     CLI11::CLI11
     GTest::gtest
     GTest::gtest_main
+    immer::immer
 )
 
 
