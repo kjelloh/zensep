@@ -22,6 +22,7 @@ find_package(spdlog REQUIRED)
 find_package(CLI11 REQUIRED)
 find_package(GTest REQUIRED)
 find_package(immer REQUIRED)
+find_package(pegtl REQUIRED)
 
 add_executable(zensep 
     src/zensep.cpp 
@@ -45,6 +46,7 @@ target_link_libraries(zensep
     GTest::gtest
     GTest::gtest_main
     immer::immer
+    taocpp::pegtl
 )
 
 

@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <immer/box.hpp>
+#include <tao/pegtl.hpp>
 
 namespace tests::atomics {
 
@@ -36,6 +37,42 @@ namespace tests::atomics {
             
             // This test ensures immer compiles and links correctly
             // Not testing immer functionality, just integration
+        }
+    }
+
+    namespace pegtl {
+        // Test PEGTL compilation and linking
+        TEST(AtomicTests, PegtlBasicUsage) {
+            // Simple grammar: match one or more digits
+            namespace pegtl = tao::pegtl;
+            
+            struct digit_rule : pegtl::plus<pegtl::digit> {};
+            struct grammar : pegtl::seq<digit_rule, pegtl::eof> {};
+            
+            // Test parsing a simple number
+            std::string input = "12345";
+            pegtl::memory_input in(input, "test");
+            
+            // This should parse successfully
+            bool parse_result = pegtl::parse<grammar>(in);
+            EXPECT_TRUE(parse_result);
+            
+            // Test with invalid input (use try/catch for safety)
+            std::string invalid_input = "abc";
+            pegtl::memory_input invalid_in(invalid_input, "test");
+            
+            // This should fail to parse
+            bool invalid_parse_result = false;
+            try {
+                invalid_parse_result = pegtl::parse<grammar>(invalid_in);
+            } catch (...) {
+                // Expected to fail
+                invalid_parse_result = false;
+            }
+            EXPECT_FALSE(invalid_parse_result);
+            
+            // This test ensures PEGTL compiles and links correctly
+            // Not testing PEGTL functionality extensively, just integration
         }
     }
 
