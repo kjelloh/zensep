@@ -1,12 +1,59 @@
+#include "zensep.h"
+#include "format/orchestrator.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <string>
-#include <utility>
-#include "zensep.h"
+#include <algorithm> // std::ranges::copy,
+#include <iterator> // ostream_iterator,
+#include <expected>
+#include <stdexcept>
 
-// C++ implementation namespace
 namespace zensep {
+
+  namespace detail {
+
+    using LineRange = std::pair<size_t, size_t>;
+    
+    std::expected<LineRange, std::string> parse_line_range(std::string_view range_str) {
+        auto colon_pos = range_str.find(':');
+        if (colon_pos == std::string_view::npos) {
+            return std::unexpected("Invalid format: expected 'start:end' (e.g., '10:20')");
+        }
+        
+        try {
+            std::string start_str(range_str.substr(0, colon_pos));
+            std::string end_str(range_str.substr(colon_pos + 1));
+            
+            long start_line = std::stol(start_str);
+            long end_line = std::stol(end_str);
+            
+            if (start_line <= 0) {
+                return std::unexpected("Start line must be greater than 0");
+            }
+            if (end_line <= 0) {
+                return std::unexpected("End line must be greater than 0");
+            }
+            if (start_line > end_line) {
+                return std::unexpected("Start line cannot be greater than end line");
+            }
+            
+            return LineRange{static_cast<size_t>(start_line), static_cast<size_t>(end_line)};
+        }
+        catch (const std::invalid_argument&) {
+            return std::unexpected("Invalid number format in line range");
+        }
+        catch (const std::out_of_range&) {
+            return std::unexpected("Line numbers too large");
+        }
+    }
+
+    void print_lines(std::ostream& out, const std::ranges::range auto& lines) {
+      std::ranges::copy(lines,
+                        std::ostream_iterator<std::string_view>(out, "\n"));
+    }
+
+  }
   // Add the missing format_file function to namespace zensep
   void format_file(const std::filesystem::path& input_file,
                    std::ostream& output_stream,
@@ -16,6 +63,19 @@ namespace zensep {
     std::ifstream input(input_file);
     if (!input.is_open()) { throw std::runtime_error("Cannot open file: " + input_file.string()); }
 
+    // Parse line range if provided
+    std::optional<detail::LineRange> parsed_range;
+    if (!lines_range.empty()) {
+      auto parse_result = detail::parse_line_range(lines_range);
+      if (!parse_result) {
+        std::cerr << "Line range error: " << parse_result.error() << std::endl;
+        throw std::invalid_argument("Line range error: " + parse_result.error());
+      }
+      parsed_range = parse_result.value();
+    }
+
+    auto unformatted = format::to_unformatted(input);
+
     if (dry_run) {
       output_stream << "DRY RUN: Would format " << input_file.filename().string();
       if (!lines_range.empty()) { output_stream << " (lines " << lines_range << ")"; }
@@ -24,13 +84,8 @@ namespace zensep {
       return;
     }
 
-    // Read and output file line by line (no-op for now)
-    std::string line;
-    while (std::getline(input, line)) {
-      // TODO: Add actual formatting logic here
-      // For now, just pass through unchanged
-      output_stream << line << "\n";
-    }
+    auto formatted = format::to_formatted(unformatted, parsed_range);
+    detail::print_lines(output_stream,formatted.out);
   }
 
   void print_build_info() {
