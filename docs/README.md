@@ -86,7 +86,7 @@ cmake --build --preset $(cat cmake_preset.txt)
 
 The dependancies is managed by consuming them using the conan package manager. See the 'def requirements...' listing in the conanfile.py.
 
-* [conanfile.py](conanfile.py)
+* [<repo root>/conanfile.py](../conanfile.py)
 
 ## Testing
 
