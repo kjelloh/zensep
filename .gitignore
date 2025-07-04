@@ -7,7 +7,6 @@ workspace/
 cmake_preset.txt
 
 // Claude AI tooling
-CLAUDE.md
 
 // VSCode IDE
 .vscode/

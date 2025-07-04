@@ -82,38 +82,11 @@ cmake --build --preset conan-debug
 cmake --build --preset $(cat cmake_preset.txt)
 ```
 
-## Project Structure
-
-```
-.
-├── CMakeLists.txt
-├── CMakeUserPresets.json
-├── LICENSE
-├── README.md
-├── _config.yml
-├── conanfile.py
-├── docs
-│   └── README.md
-├── index.md
-├── init_tool_chain.zsh
-├── run.zsh
-├── src
-│   ├── main.cpp
-│   ├── zensep.cpp
-│   └── zensep.h
-├── test_package
-│   └── conanfile.py
-
-```
-
 ## Dependencies
 
-The project includes these Conan packages:
-- `spdlog/1.12.0` - Fast C++ logging library
-- `cli11/2.3.2` - Command line parsing library
-- `gtest/1.14.0` - Google Test framework
+The dependancies is managed by consuming them using the conan package manager. See the 'def requirements...' listing in the conanfile.py.
 
-Dependencies are automatically managed through the Conan toolchain integration.
+* [conanfile.py](conanfile.py)
 
 ## Testing
 
@@ -122,12 +95,6 @@ The project includes an integrated testing framework using Google Test:
 ```bash
 ./run.zsh --test
 ```
-
-Test structure:
-- `src/test/test_atomics.cpp/hpp` - Unit tests
-- `src/test/test_integrations.cpp/hpp` - Integration tests  
-- `src/test/test_fixtures.cpp/hpp` - Shared test fixtures
-- `src/test/test_runner.cpp/hpp` - Test orchestration
 
 ## Development Documentation
 
