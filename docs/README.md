@@ -109,7 +109,30 @@ cmake --build --preset $(cat cmake_preset.txt)
 ## Dependencies
 
 The project includes these Conan packages:
-- `fmt/10.2.1` - Modern C++ formatting library
 - `spdlog/1.12.0` - Fast C++ logging library
+- `cli11/2.3.2` - Command line parsing library
+- `gtest/1.14.0` - Google Test framework
 
 Dependencies are automatically managed through the Conan toolchain integration.
+
+## Testing
+
+The project includes an integrated testing framework using Google Test:
+
+```bash
+./run.zsh --test
+```
+
+Test structure:
+- `src/test/test_atomics.cpp/hpp` - Unit tests
+- `src/test/test_integrations.cpp/hpp` - Integration tests  
+- `src/test/test_fixtures.cpp/hpp` - Shared test fixtures
+- `src/test/test_runner.cpp/hpp` - Test orchestration
+
+## Development Documentation
+
+Code has been developed in interaction with Claude AI command line tool.
+
+Claude creates a CLAUDE.md to remember key information about this project between sessions. This file can be read and understodd also by developers.
+
+* [<repo root>/CLAUDE.md](../CLAUDE.md)
