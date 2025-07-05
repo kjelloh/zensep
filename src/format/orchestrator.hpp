@@ -5,17 +5,17 @@
 #include <string>
 
 namespace zensep::format {
-    
-    // Orchestrator scaffolding
 
-    struct FormatResult {
-        std::vector<std::string> in{}; // input cache
-        std::vector<std::string> mutated{}; // mutated cache
-        std::vector<std::string_view> out; // Refs to in or mutated
-    };
+  struct FormatResult {
+    std::vector<std::string> in_cache{}; // input cache
+    std::vector<std::string> out_cache{}; // mutated cache
+    std::vector<std::string_view> out; // Refs to in or mutated
+  };
 
-    FormatResult to_unformatted(std::ifstream& input);
-    FormatResult to_formatted(FormatResult const& unformatted, 
-                              std::optional<std::pair<size_t, size_t>> line_range = std::nullopt);
+  FormatResult to_unformatted(std::ifstream& input);
+
+  FormatResult to_formatted(
+     FormatResult const& unformatted
+    ,std::optional<std::pair<size_t, size_t>> line_range = std::nullopt);
 
 }
