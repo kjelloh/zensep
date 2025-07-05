@@ -1,7 +1,7 @@
 #include "orchestrator.hpp"
 #include <string> // std::getline
-#include <ranges>
 #include <variant>
+#include <queue>
 
 namespace zensep::format {
   FormatResult to_unformatted(std::ifstream& input) {
@@ -13,79 +13,88 @@ namespace zensep::format {
     return result;
   }
 
-  using Window = std::pair<std::string,std::string>;
 
   namespace detail {
+    using Baked = std::string;
     struct NoOp {
-      operator bool() const {return false;}
-      Window apply(Window const& window) const {
-        return window;
+      Baked visit(std::queue<std::string>& current) const {
+        auto result = current.front();
+        current.pop();
+        return result;
       }
     };
   }
+  using Baked = detail::Baked;
 
   class Formatter {
   public:
-    operator bool() const {return false;}
-    Window apply(Window const& window) {
-      return std::visit(
-        [&](auto const& formatter) {
-          return formatter.apply(window);
-      }
-      , m_concrete_formatter);
+    Baked visit(std::queue<std::string>& current) const {
+      return std::visit([&](auto const& concrete_formatter) {
+        return concrete_formatter.visit(current);
+      },m_concrete_formatter);
     }
   private:
     std::variant<detail::NoOp> m_concrete_formatter{};
   };
 
-  Formatter to_formatter(Window const& window) {
-    return Formatter{};
-  }
-
-  bool is_mutation(Window const& window,auto ix,std::vector<std::string> const& in_cache) {
-    return (window.first != in_cache[ix] && window.second != in_cache[ix+1]);
-  }
-
   FormatResult to_formatted(FormatResult const& unformatted, 
                             std::optional<std::pair<size_t, size_t>> line_range) {
     FormatResult result{unformatted};
-    result.out.clear();
-    
+
     auto range_to_format = std::make_pair(1, unformatted.in_cache.size());
     if (line_range) {
         range_to_format = *line_range;
     }
 
-    for (int ix=0;ix<result.in_cache.size();ix++) {
-      // Is (ix+1),(ix+2) inside range?
-      // Note: line_range and range_to_format is 1-index-based while ix is zero-based
-      if ((ix+1) >= range_to_format.first and ((ix+1) < range_to_format.second)) {
-        Window window{
-          result.in_cache[ix] // parent
-         ,result.in_cache[ix+1] // child
-        };
-        while (auto formatter = to_formatter(window)) {
-          window = formatter.apply(window);
+    struct Unvisited {
+      int ix;
+      std::string_view in_cache_line;
+    };
+    // Consume the input using a queue of views into in_cache.
+    std::queue<Unvisited> unvisited{};
+    for (int ix=0;ix<result.in_cache.size();++ix) unvisited.push({ix, result.in_cache[ix]});
+
+    if (true) {
+      result.out.clear();
+      // while (unvisited)
+      //  feed: (unvisited,current)  -> (unvisited,current)
+      //  update: (current,formatter_stack) -> formatter_stack
+      //  format: (current,formatter_stack) -> (current,baked)
+      //  emit: (baked,result) -> result
+
+      std::queue<std::string> current{};
+      auto feed = [](std::queue<Unvisited>& unvisited,std::queue<std::string>& current) {
+        while (!unvisited.empty() and current.size() < 2) {
+          current.push(std::string{unvisited.front().in_cache_line});
+          unvisited.pop();
         }
-        // Done formatting
-        if (is_mutation(window,ix,result.in_cache)) {
-          if (window.first.size()>0) {
-            result.out_cache.push_back(window.first);
-            result.out_cache.push_back(result.out_cache.back());
-          }
-          if (window.second.size()>0) {
-            result.out_cache.push_back(window.second);
-            result.out_cache.push_back(result.out_cache.back());
-          }
+      };
+
+      std::stack<Formatter> formatter_stack{};
+      auto update = [](std::queue<std::string>& current,std::stack<Formatter>& formatter_stack) {
+        if (formatter_stack.empty()) {
+          formatter_stack.push(Formatter{});
         }
-        else {
-          result.out.emplace_back(result.in_cache[ix]); // as is
-        }
+      };
+
+      auto format = [](std::queue<std::string>& current,std::stack<Formatter>& formatter_stack) {
+        return formatter_stack.top().visit(current);
+      };
+
+      auto emit = [](Baked const& baked,FormatResult& result) {
+        result.out_cache.push_back(baked);
+        result.out.push_back(result.out_cache.back());
+      };
+
+      while (unvisited.size() > 0) {
+        feed(unvisited,current);
+        update(current,formatter_stack);
+        auto baked = format(current,formatter_stack);
+        emit(baked,result);
       }
-      else {
-        result.out.emplace_back(result.in_cache[ix]);
-      }
+
     }
+
     return result;
   }
 
