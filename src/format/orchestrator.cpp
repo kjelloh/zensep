@@ -15,7 +15,7 @@ namespace zensep::format {
 
 
   namespace detail {
-    using Baked = std::string;
+    using Baked = std::optional<std::string>;
     struct NoOp {
       Baked visit(std::queue<std::string>& current) const {
         auto result = current.front();
@@ -82,8 +82,10 @@ namespace zensep::format {
       };
 
       auto emit = [](Baked const& baked,FormatResult& result) {
-        result.out_cache.push_back(baked);
-        result.out.push_back(result.out_cache.back());
+        if (baked) {
+          result.out_cache.push_back(baked.value());
+          result.out.push_back(result.out_cache.back());
+        }
       };
 
       while (unvisited.size() > 0) {
