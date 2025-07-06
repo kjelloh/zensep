@@ -2,11 +2,15 @@
 #include "test_atomics.hpp"
 #include "test_integrations.hpp"
 #include "test_fixtures.hpp"
+#include <gtest/gtest.h>
 #include <iostream>
 
 namespace tests {
     bool run_all() {
         std::cout << "Running all tests..." << std::endl;
+        
+        // Initialize GoogleTest once at the top level
+        ::testing::InitGoogleTest();
         
         bool atomics_pass = atomics::run_all();
         bool integrations_pass = integrations::run_all();

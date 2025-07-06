@@ -4,6 +4,14 @@
 #include <vector>
 #include <string>
 
+namespace zensep {
+
+  class Formatter {
+  public:
+    std::string format(const std::string& source);
+  };
+
+}
 namespace zensep::format {
 
   struct FormatResult {

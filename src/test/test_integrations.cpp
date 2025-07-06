@@ -17,8 +17,8 @@ namespace tests::integrations {
     bool run_all() {
         std::cout << "Running integration tests..." << std::endl;
         
-        // Run gtest for this namespace
-        ::testing::InitGoogleTest();
+        // Filter to run only integration tests (IntegrationTests suite)
+        ::testing::GTEST_FLAG(filter) = "IntegrationTests*";
         int result = RUN_ALL_TESTS();
         
         return result == 0;

@@ -1,6 +1,7 @@
 #include "test_atomics.hpp"
 #include "test_fixtures.hpp"
 #include "../zensep.h"
+#include "../format/orchestrator.hpp"
 #include <gtest/gtest.h>
 #include <iostream>
 #include <immer/box.hpp>
@@ -12,6 +13,68 @@ namespace tests::atomics {
     TEST(AtomicTests, DummyAlwaysPass) {
         EXPECT_TRUE(true);
         ASSERT_EQ(1, 1);
+    }
+
+    namespace format {
+
+        class FormatterTest : public ::testing::Test {
+        protected:
+            zensep::Formatter formatter;
+        };
+
+        TEST_F(FormatterTest, FunctionWithArguments) {
+            std::string input = R"(void foo(int a, double b, std::string c);)";
+            std::string expected = R"(void foo(
+    int a
+    , double b
+    , std::string c);
+)";
+            EXPECT_EQ(formatter.format(input), expected);
+        }
+
+        TEST_F(FormatterTest, FunctionWithBlockStatements) {
+            std::string input = R"(void bar() { int x = 0; x++; std::cout << x; })";
+            std::string expected = R"(void bar(
+){
+    int x
+    = 0;
+    x++;
+    std::cout<<x;
+})";
+            EXPECT_EQ(formatter.format(input), expected);
+        }
+
+        TEST_F(FormatterTest, TernaryExpression) {
+            std::string input = R"(int value = (x > 0) ? x * 2 : y / 2;)";
+            std::string expected = R"(int value
+= (
+    x
+    > 0)
+? x
+* 2
+: y
+/ 2;
+)";
+            EXPECT_EQ(formatter.format(input), expected);
+        }
+
+        TEST_F(FormatterTest, NestedScopesAndExpressions) {
+            std::string input = R"(auto result = a + (b * (c + d / (e - f))) - g;)";
+            std::string expected = R"(auto result
+= a
++ (
+    b
+    * (
+        c
+        + d
+        / (
+            e
+            - f        )    ))
+- g;
+)";
+            EXPECT_EQ(formatter.format(input), expected);
+        }
+
     }
 
     namespace immer {
@@ -81,8 +144,8 @@ namespace tests::atomics {
     bool run_all() {
         std::cout << "Running atomic tests..." << std::endl;
         
-        // Run gtest for this namespace
-        ::testing::InitGoogleTest();
+        // Filter to run only atomic tests (AtomicTests and FormatterTest suites)
+        ::testing::GTEST_FLAG(filter) = "AtomicTests*:FormatterTest*";
         int result = RUN_ALL_TESTS();
         
         return result == 0;
