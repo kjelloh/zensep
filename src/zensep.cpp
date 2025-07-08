@@ -54,16 +54,14 @@ namespace zensep {
     }
 
   }
-  // Add the missing format_file function to namespace zensep
+
   void format_file(const std::filesystem::path& input_file,
                    std::ostream& output_stream,
                    const std::string& lines_range,
                    bool dry_run) {
-    // Read input file
     std::ifstream input(input_file);
     if (!input.is_open()) { throw std::runtime_error("Cannot open file: " + input_file.string()); }
 
-    // Parse line range if provided
     std::optional<detail::LineRange> parsed_range;
     if (!lines_range.empty()) {
       auto parse_result = detail::parse_line_range(lines_range);
@@ -74,18 +72,25 @@ namespace zensep {
       parsed_range = parse_result.value();
     }
 
-    auto unformatted = format::to_unformatted(input);
-
+    std::string content((std::istreambuf_iterator<char>(input)),
+                        std::istreambuf_iterator<char>());
+    
     if (dry_run) {
       output_stream << "DRY RUN: Would format " << input_file.filename().string();
       if (!lines_range.empty()) { output_stream << " (lines " << lines_range << ")"; }
       output_stream << "\n";
-      output_stream << "No changes would be made (no-op formatter)\n";
+      output_stream << "Changes would be made using naive formatter\n";
       return;
     }
 
-    auto formatted = format::to_formatted(unformatted, parsed_range);
-    detail::print_lines(output_stream,formatted.out);
+    Formatter::Options options;
+    if (parsed_range) {
+        options.line_range = parsed_range;
+    }
+
+    Formatter formatter;
+    auto format_result = formatter.format(content, options);
+    output_stream << format_result;
   }
 
   void print_build_info() {
