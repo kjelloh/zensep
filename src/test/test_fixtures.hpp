@@ -5,15 +5,25 @@
 namespace tests::fixtures {
     // Shared test fixtures and utilities
 
-    // TestEnvironment class definition
-    class TestEnvironment : public ::testing::Environment {
+    // SharedCLIFixture class definition
+    class SharedCLIFixture : public ::testing::Environment {
     public:
+        SharedCLIFixture() { instance = this; }
+        
         void SetUp() override;
         void TearDown() override;
+        
+        // Getters for shared resources
+        const std::string& getRootTestDir() const { return rootTestDir; }
+        const std::string& getZensepExecutable() const { return zensepExecutable; }
+        
+        // Static access method
+        static SharedCLIFixture* getInstance() { return instance; }
 
     private:
         std::string rootTestDir;
         std::string zensepExecutable;
+        static SharedCLIFixture* instance;
 
     };
     

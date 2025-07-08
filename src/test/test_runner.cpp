@@ -10,7 +10,7 @@ namespace tests {
         std::cout << "Running all tests..." << std::endl;
 
         // Create and register global test environment
-        auto* testEnv = new fixtures::TestEnvironment();
+        auto* testEnv = new fixtures::SharedCLIFixture();
         ::testing::AddGlobalTestEnvironment(testEnv);
 
         

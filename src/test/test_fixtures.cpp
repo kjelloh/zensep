@@ -9,21 +9,23 @@
 
 namespace tests::fixtures {
 
-    // TestEnvironment implementation
-    void TestEnvironment::SetUp() {
-        // Create root test directory (but don't change to it)
+    // Static instance for SharedCLIFixture (defaults to nullptr)
+    SharedCLIFixture* SharedCLIFixture::instance = nullptr;
+
+    // SharedCLIFixture implementation
+    void SharedCLIFixture::SetUp() {
         rootTestDir = std::filesystem::temp_directory_path() / "zensep_test_env";
         std::filesystem::create_directories(rootTestDir);
         
         // Assume zensep executable is in current directory (we are run as 'zensep --test')
         zensepExecutable = std::filesystem::current_path() / "zensep";
         
-        std::cout << "Test environment: Set up root test dir " << rootTestDir << std::endl;
-        std::cout << "Test environment: Using zensep at " << zensepExecutable << std::endl;
+        std::cout << "SharedCLIFixture: Set up root test dir " << rootTestDir << std::endl;
+        std::cout << "SharedCLIFixture: Using zensep at " << zensepExecutable << std::endl;
     }
     
-    void TestEnvironment::TearDown() {
-        std::cout << "Test environment: Tore down root test dir " << rootTestDir << std::endl;
+    void SharedCLIFixture::TearDown() {
+        std::cout << "SharedCLIFixture: Tore down root test dir " << rootTestDir << std::endl;
         // Clean up root test directory
         if (std::filesystem::exists(rootTestDir)) {
             std::filesystem::remove_all(rootTestDir);
@@ -32,9 +34,9 @@ namespace tests::fixtures {
     
     // CLITestFixture implementation
     void CLITestFixture::SetUp() {
-        // Create a unique subdirectory for this test in the temp directory
-        testDir = std::filesystem::temp_directory_path() / "zensep_test_env" / ("test_" + std::to_string(std::rand()));
-        std::filesystem::remove_all(testDir);
+        // Use shared root directory from SharedCLIFixture
+        auto* env = SharedCLIFixture::getInstance();
+        testDir = std::filesystem::path(env->getRootTestDir()) / ("test_" + std::to_string(std::rand()));
         std::filesystem::create_directories(testDir);
     }
     
@@ -44,8 +46,8 @@ namespace tests::fixtures {
     }
     
     std::string CLITestFixture::getZensepExecutable() {
-        // Assume zensep executable is in current working directory
-        return (std::filesystem::current_path() / "zensep").string();
+        // Use shared zensep path from SharedCLIFixture
+        return SharedCLIFixture::getInstance()->getZensepExecutable();
     }
     
     std::filesystem::path CLITestFixture::getFullPath(const std::string& filename) {
