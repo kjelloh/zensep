@@ -8,6 +8,11 @@
 namespace tests {
     bool run_all() {
         std::cout << "Running all tests..." << std::endl;
+
+        // Create and register global test environment
+        auto* testEnv = new fixtures::TestEnvironment();
+        ::testing::AddGlobalTestEnvironment(testEnv);
+
         
         // Initialize GoogleTest once at the top level
         ::testing::InitGoogleTest();
