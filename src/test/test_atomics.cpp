@@ -75,6 +75,17 @@ namespace tests::atomics {
             EXPECT_EQ(formatter.format(input), expected);
         }
 
+        TEST_F(FormatterTest, ConstructorWithMultipleParameters) {
+            std::string input = R"(    ProjectState(StateImpl::UX ux, PersistentFile<Environment> m_persistent_environment_file,Environment 
+  m_environment);)";
+            std::string expected = R"(    ProjectState(
+         StateImpl::UX ux
+        ,PersistentFile<Environment> m_persistent_environment_file
+        ,Environment m_environment);
+)";
+            EXPECT_EQ(formatter.format(input), expected);
+        }
+
     }
 
     namespace immer {
