@@ -2,6 +2,31 @@
 
 A separator-first C++ / C-languages code formatter
 
+## Formatting Philosophy
+
+Zensep transforms C++ code to use a "separator-first" style where operators, commas, and other separators are placed at the beginning of lines rather than at the end. This approach improves readability by making the structure more visually apparent and reducing cognitive load when scanning code.
+
+### Example
+
+**Input (single line):**
+```cpp
+    ProjectState(StateImpl::UX ux, PersistentFile<Environment> m_persistent_environment_file,Environment 
+  m_environment);
+```
+
+**Output (Indented list with separator first):**
+```cpp
+    ProjectState(
+       StateImpl::UX ux
+      ,PersistentFile<Environment> m_persistent_environment_file
+      ,Environment m_environment);
+```
+
+Key formatting principles:
+- **Separators first**: Commas, operators, and other separators begin new lines
+- **Consistent indentation**: Parameters and expressions are aligned for clarity
+- **Structured layout**: Complex expressions are broken down into readable chunks
+
 ## Build System
 
 This project uses a **preset-based workflow** combining:
