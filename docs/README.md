@@ -22,6 +22,18 @@ Zensep transforms C++ code to use a "separator-first" style where operators, com
       ,Environment m_environment);
 ```
 
+**Corresponding empty definition:**
+```cpp
+  ProjectState::ProjectState(
+      StateImpl::UX ux
+    ,PersistentFile<Environment> persistent_environment_file
+    ,Environment environment)
+    :  StateImpl{ux}
+      ,m_root_path{persistent_environment_file.root_path()}
+      ,m_persistent_environment_file{persistent_environment_file}
+      ,m_environment{environment} {}
+```
+
 Key formatting principles:
 - **Separators first**: Commas, operators, and other separators begin new lines
 - **Consistent indentation**: Parameters and expressions are aligned for clarity
