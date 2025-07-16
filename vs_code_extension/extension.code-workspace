@@ -1,0 +1,69 @@
+{
+    "folders": [
+        {
+            "name": "Zensep VSCode Extension",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/node_modules": true,
+            "**/out": true
+        },
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "zensep.executablePath": "../build/Debug/zensep"
+    },
+    "launch": {
+        "configurations": [
+            {
+                "name": "Launch Extension",
+                "type": "extensionHost",
+                "request": "launch",
+                "runtimeExecutable": "${execPath}",
+                "args": [
+                    "--extensionDevelopmentPath=${workspaceFolder}"
+                ],
+                "outFiles": [
+                    "${workspaceFolder}/out/**/*.js"
+                ],
+                "preLaunchTask": "npm: compile"
+            }
+        ]
+    },
+    "tasks": {
+        "tasks": [
+            {
+                "label": "npm: compile",
+                "type": "npm",
+                "script": "compile",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "silent",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": ["$tsc"]
+            },
+            {
+                "label": "npm: watch",
+                "type": "npm",
+                "script": "watch",
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "silent",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": ["$tsc-watch"],
+                "isBackground": true
+            }
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.vscode-typescript-next"
+        ]
+    }
+}

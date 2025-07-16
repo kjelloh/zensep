@@ -1,0 +1,72 @@
+{
+  "name": "zensep",
+  "displayName": "Zensep",
+  "description": "C++ code formatter with separator-first approach",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "activationEvents": [
+    "onLanguage:cpp"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "zensep.format",
+        "title": "Format with Zensep"
+      }
+    ],
+    "languages": [
+      {
+        "id": "cpp",
+        "extensions": [
+          ".cpp",
+          ".cc",
+          ".cxx",
+          ".c++",
+          ".cp",
+          ".hpp",
+          ".hh",
+          ".hxx",
+          ".h++",
+          ".hp",
+          ".h"
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Zensep",
+      "properties": {
+        "zensep.executablePath": {
+          "type": "string",
+          "default": "zensep",
+          "description": "Path to the zensep executable"
+        },
+        "zensep.formatOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Format files on save"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
+    "@vscode/vsce": "^3.6.0",
+    "typescript": "^4.9.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kjell-olovhogdahl/zensep.git"
+  }
+}

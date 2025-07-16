@@ -133,6 +133,95 @@ The project includes an integrated testing framework using Google Test:
 ./run.zsh --test
 ```
 
+## VSCode Extension
+
+Zensep includes a Visual Studio Code extension for seamless integration with your development workflow. The extension is located in the `vs_code_extension/` subfolder and provides:
+
+- **Format with Zensep** command
+- **Document formatter** integration
+- **Configurable executable path**
+- **Format on save** option
+
+### Extension Development
+
+The VSCode extension project follows the same helper script pattern as the main C++ project:
+
+#### Extension Helper Scripts (macOS/Unix)
+
+**Setup and initialization:**
+```bash
+cd vs_code_extension
+./init_tool_chain.zsh
+```
+- Installs Node.js dependencies
+- Installs VSCode Extension CLI tool (vsce)
+- Compiles TypeScript source code
+- Verifies the development environment
+
+**Development and testing:**
+```bash
+./run.zsh
+```
+- Launches Extension Development Host
+- Opens new VSCode window with extension loaded
+- Auto-compiles if needed
+
+**Packaging for installation:**
+```bash
+./build.zsh
+```
+- Compiles TypeScript
+- Creates `zensep-latest.vsix` package
+- Shows installation instructions
+
+### Extension Installation
+
+After building the package:
+
+1. Open VSCode
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Click "..." menu → "Install from VSIX..."
+4. Select `vs_code_extension/zensep-latest.vsix`
+
+### Extension Configuration
+
+After installation, configure the extension to find your zensep executable:
+
+**Method 1: Settings UI (Recommended)**
+1. Open VSCode Settings (Ctrl+, / Cmd+,)
+2. Search for "zensep"
+3. Find "Zensep: Executable Path"
+4. Set the full path to your zensep binary, for example:
+   ```
+   /Users/your-username/path/to/zensep/build/Debug/zensep
+   ```
+
+**Method 2: Settings JSON**
+1. Open Command Palette (Ctrl+Shift+P / Cmd+Shift+P)
+2. Type "Preferences: Open Settings (JSON)"
+3. Add this configuration:
+   ```json
+   {
+       "zensep.executablePath": "/full/path/to/your/zensep/build/Debug/zensep"
+   }
+   ```
+
+**Method 3: Workspace Settings**
+For project-specific configuration, create/edit `.vscode/settings.json` in your workspace:
+```json
+{
+    "zensep.executablePath": "../build/Debug/zensep"
+}
+```
+
+**Testing the Extension**
+1. Open any C++ file (.cpp, .hpp, etc.)
+2. Use Ctrl+Shift+P / Cmd+Shift+P → "Format with Zensep"
+3. Or right-click → "Format Document"
+4. The extension should now successfully format your code
+
+For detailed extension development information, see [vs_code_extension/README.md](../vs_code_extension/README.md).
+
 ## Development Documentation
 
 Code has been developed in interaction with Claude AI command line tool.
