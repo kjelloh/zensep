@@ -2,9 +2,13 @@ import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { execFile } from 'child_process';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Zensep extension is now active!');
+
+    const outputChannel = vscode.window.createOutputChannel("Zensep");
+    outputChannel.appendLine("Zensep extension activated");
+    outputChannel.show(true);
 
     const disposable = vscode.commands.registerCommand('zensep.format', () => {
         const editor = vscode.window.activeTextEditor;
@@ -19,20 +23,19 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        formatDocument(document, context);
+        formatDocument(document, context, outputChannel);
     });
 
-    // Register as document formatter
     const formattingProvider = vscode.languages.registerDocumentFormattingEditProvider(
         { language: 'cpp' },
         {
             provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-                return formatDocumentSync(document, context);
+                return formatDocumentSync(document, context, outputChannel);
             }
         }
     );
 
-    context.subscriptions.push(disposable, formattingProvider);
+    context.subscriptions.push(disposable, formattingProvider, outputChannel);
 }
 
 function isCppFile(document: vscode.TextDocument): boolean {
@@ -45,7 +48,7 @@ function getBundledExecutablePath(context: vscode.ExtensionContext): string {
     const platform = process.platform; // 'darwin', 'linux', 'win32'
     const arch = process.arch; // 'x64', 'arm64'
     
-    let platformDir = '';
+    let platformDir = 'darwin-arm64/zensep';
     if (platform === 'darwin') {
         platformDir = arch === 'arm64' ? 'darwin-arm64' : 'darwin-x64';
     } else if (platform === 'linux') {
@@ -58,12 +61,23 @@ function getBundledExecutablePath(context: vscode.ExtensionContext): string {
     return path.join(context.extensionPath, 'bin', platformDir, executableName);
 }
 
-function formatDocument(document: vscode.TextDocument, context: vscode.ExtensionContext) {
+function formatDocument(
+    document: vscode.TextDocument,
+    context: vscode.ExtensionContext,
+    outputChannel: vscode.OutputChannel
+) {
+    outputChannel.appendLine(`Zensep formatDocument called for ${document.fileName}`);
+    outputChannel.show(true);
+
     const config = vscode.workspace.getConfiguration('zensep');
-    let executablePath = config.get<string>('executablePath', '');
-    
+
+    let executablePath = config.get<string>('executablePath');
+
+    console.log('Executable path from config:', executablePath);
+    outputChannel.appendLine(`Executable path from config: ${executablePath}`);
+
     // If no custom path is configured, use the bundled binary
-    if (!executablePath) {
+    if (!executablePath || executablePath.trim() === '') {
         executablePath = getBundledExecutablePath(context);
         
         // Check if bundled binary exists
@@ -73,26 +87,27 @@ function formatDocument(document: vscode.TextDocument, context: vscode.Extension
         }
     }
     
-    console.log('Zensep executable path:', executablePath);
+    console.log('Zensep executable path::', executablePath);
     
     const tempFile = document.fileName;
     const command = `"${executablePath}" "${tempFile}"`;
-    
-    exec(command, (error, stdout, stderr) => {
+
+    execFile(executablePath, [tempFile], (error, stdout, stderr) => {
         if (error) {
             vscode.window.showErrorMessage(`Zensep formatting failed: ${error.message}\nUsed path: ${executablePath}`);
             return;
         }
-        
+
         if (stderr) {
             vscode.window.showWarningMessage(`Zensep warning: ${stderr}`);
         }
-        
+
         vscode.window.showInformationMessage('File formatted with Zensep');
     });
 }
 
-function formatDocumentSync(document: vscode.TextDocument, context: vscode.ExtensionContext): vscode.TextEdit[] {
+function formatDocumentSync(document: vscode.TextDocument, 
+  context: vscode.ExtensionContext,outputChannel: vscode.OutputChannel): vscode.TextEdit[] {
     // For now, return empty array - this would need to be implemented
     // to actually format the document content and return the changes
     return [];

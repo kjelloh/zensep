@@ -1,0 +1,168 @@
+{
+    "folders": [
+        {
+            "name": "Zensep C++ Formatter",
+            "path": "."
+        },
+        {
+            "name": "Zensep VSCode Extension",
+            "path": "./vs_code_extension"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/node_modules": true,
+            "**/out": true,
+            "build/**": true,
+            "cmake-build-*/**": true
+        },
+        // "zensep.executablePath": "${workspaceFolder}/build/Debug/zensep"
+    },
+    "launch": {
+        "configurations": [
+            {
+                "name": "Build and Run Zensep",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder:Zensep C++ Formatter}/build/Debug/zensep",
+                "args": ["--help"],
+                "stopAtEntry": false,
+                "cwd": "${workspaceFolder:Zensep C++ Formatter}",
+                "environment": [],
+                "externalConsole": false,
+                "MIMode": "lldb",
+                "preLaunchTask": "zensep: build"
+            },
+            {
+                "name": "Launch VSCode Extension",
+                "type": "extensionHost",
+                "request": "launch",
+                "runtimeExecutable": "${execPath}",
+                "args": [
+                    "--extensionDevelopmentPath=${workspaceFolder:Zensep VSCode Extension}",
+                    "--user-data-dir=${workspaceFolder:Zensep VSCode Extension}/.vscode-test-user-data"
+                ],
+                "outFiles": [
+                    "${workspaceFolder:Zensep VSCode Extension}/out/**/*.js"
+                ],
+                "preLaunchTask": "zensep_vscode_extension: build",
+                "env": {
+                    "ZENSEP_EXECUTABLE_PATH": "${workspaceFolder:Zensep C++ Formatter}/build/Debug/zensep"
+                }
+            }
+        ]
+    },
+    "tasks": {
+        "tasks": [
+            {
+                "label": "zensep_vscode_extension: build",
+                "type": "shell",
+                "command": "npm",
+                "args": ["run", "compile"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "silent",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep VSCode Extension}"
+                },
+                "problemMatcher": ["$tsc"]
+            },
+            {
+                "label": "zensep: configure",
+                "type": "shell",
+                "command": "cmake",
+                "args": ["--preset", "conan-debug"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep C++ Formatter}"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "zensep: build",
+                "type": "shell",
+                "command": "cmake",
+                "args": ["--build", "--preset", "conan-debug"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep C++ Formatter}"
+                },
+                "problemMatcher": ["$gcc"],
+                "dependsOn": "zensep: configure"
+            },
+            {
+                "label": "zensep: test",
+                "type": "shell",
+                "command": "${workspaceFolder:Zensep C++ Formatter}/build/Debug/zensep",
+                "args": ["--test"],
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep C++ Formatter}"
+                },
+                "dependsOn": "zensep: build"
+            },
+            {
+                "label": "zensep_vscode_extension: package",
+                "type": "shell",
+                "command": "npx",
+                "args": ["vsce", "package"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep VSCode Extension}"
+                },
+                "dependsOn": "zensep_vscode_extension: build"
+            },
+            {
+                "label": "zensep_vscode_extension: package_and_deploy",
+                "type": "shell",
+                "command": "sh",
+                "args": ["-c", "npx vsce package --out zensep-latest.vsix && echo '\n📦 Package created: zensep-latest.vsix\n🔧 To install: Extensions → ... → Install from VSIX → select zensep-latest.vsix'"],
+                "group": "build",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "options": {
+                    "cwd": "${workspaceFolder:Zensep VSCode Extension}"
+                },
+                "dependsOn": "zensep_vscode_extension: build"
+            }
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.cpptools",
+            "ms-vscode.cmake-tools"
+        ]
+    }
+}
