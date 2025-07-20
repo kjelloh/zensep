@@ -102,15 +102,64 @@ function formatDocument(
             vscode.window.showWarningMessage(`Zensep warning: ${stderr}`);
         }
 
-        vscode.window.showInformationMessage('File formatted with Zensep');
+        // Apply the formatted content from stdout to the editor
+        const editor = vscode.window.activeTextEditor;
+        if (editor && stdout) {
+            const fullRange = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length)
+            );
+            
+            editor.edit(editBuilder => {
+                editBuilder.replace(fullRange, stdout);
+            }).then(() => {
+                vscode.window.showInformationMessage('File formatted with Zensep');
+            });
+        } else {
+            vscode.window.showInformationMessage('File formatted with Zensep');
+        }
     });
 }
 
 function formatDocumentSync(document: vscode.TextDocument, 
-  context: vscode.ExtensionContext,outputChannel: vscode.OutputChannel): vscode.TextEdit[] {
-    // For now, return empty array - this would need to be implemented
-    // to actually format the document content and return the changes
-    return [];
+  context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): vscode.TextEdit[] {
+    outputChannel.appendLine(`Zensep formatDocumentSync called for ${document.fileName}`);
+    
+    const config = vscode.workspace.getConfiguration('zensep');
+    let executablePath = config.get<string>('executablePath');
+
+    if (!executablePath || executablePath.trim() === '') {
+        executablePath = getBundledExecutablePath(context);
+        
+        if (!fs.existsSync(executablePath)) {
+            outputChannel.appendLine(`Bundled zensep binary not found at: ${executablePath}`);
+            return [];
+        }
+    }
+
+    try {
+        const { execFileSync } = require('child_process');
+        
+        // Run zensep and capture stdout with the formatted content
+        const formattedContent = execFileSync(executablePath, [document.fileName], { 
+            encoding: 'utf8',
+            timeout: 10000 // 10 second timeout
+        });
+        
+        outputChannel.appendLine(`Zensep formatting completed successfully`);
+        
+        // Create a TextEdit that replaces the entire document with the formatted content
+        const fullRange = new vscode.Range(
+            document.positionAt(0),
+            document.positionAt(document.getText().length)
+        );
+        
+        return [vscode.TextEdit.replace(fullRange, formattedContent)];
+        
+    } catch (error) {
+        outputChannel.appendLine(`Zensep formatting error: ${error}`);
+        return [];
+    }
 }
 
 export function deactivate() {}
