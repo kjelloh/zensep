@@ -3,6 +3,7 @@
   "displayName": "Zensep",
   "description": "C++ code formatter with separator-first approach",
   "version": "0.0.1",
+  "publisher": "itfied",
   "engines": {
     "vscode": "^1.74.0"
   },

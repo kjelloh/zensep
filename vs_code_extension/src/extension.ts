@@ -35,7 +35,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    context.subscriptions.push(disposable, formattingProvider, outputChannel);
+    const rangeFormattingProvider = vscode.languages.registerDocumentRangeFormattingEditProvider(
+        { language: 'cpp' },
+        {
+            provideDocumentRangeFormattingEdits(
+                document: vscode.TextDocument, 
+                range: vscode.Range
+            ): vscode.TextEdit[] {
+                return formatRangeSync(document, range, context, outputChannel);
+            }
+        }
+    );
+
+    context.subscriptions.push(disposable, formattingProvider, rangeFormattingProvider, outputChannel);
 }
 
 function isCppFile(document: vscode.TextDocument): boolean {
@@ -119,6 +131,51 @@ function formatDocument(
             vscode.window.showInformationMessage('File formatted with Zensep');
         }
     });
+}
+
+function formatRangeSync(
+    document: vscode.TextDocument, 
+    range: vscode.Range,
+    context: vscode.ExtensionContext, 
+    outputChannel: vscode.OutputChannel
+): vscode.TextEdit[] {
+    outputChannel.appendLine(`Zensep formatRangeSync called for ${document.fileName}, lines ${range.start.line + 1}:${range.end.line + 1}`);
+    
+    const config = vscode.workspace.getConfiguration('zensep');
+    let executablePath = config.get<string>('executablePath');
+
+    if (!executablePath || executablePath.trim() === '') {
+        executablePath = getBundledExecutablePath(context);
+        
+        if (!fs.existsSync(executablePath)) {
+            outputChannel.appendLine(`Bundled zensep binary not found at: ${executablePath}`);
+            return [];
+        }
+    }
+
+    try {
+        const { execFileSync } = require('child_process');
+        
+        // Convert VSCode line numbers (0-based) to zensep line numbers (1-based)
+        const startLine = range.start.line + 1;
+        const endLine = range.end.line + 1;
+        const linesArg = `${startLine}:${endLine}`;
+        
+        // Run zensep with --lines option and capture stdout with the formatted content
+        const formattedContent = execFileSync(executablePath, [document.fileName, '--lines', linesArg], { 
+            encoding: 'utf8',
+            timeout: 10000 // 10 second timeout
+        });
+        
+        outputChannel.appendLine(`Zensep range formatting completed successfully for lines ${linesArg}`);
+        
+        // Create a TextEdit that replaces the selected range with the formatted content
+        return [vscode.TextEdit.replace(range, formattedContent)];
+        
+    } catch (error) {
+        outputChannel.appendLine(`Zensep range formatting error: ${error}`);
+        return [];
+    }
 }
 
 function formatDocumentSync(document: vscode.TextDocument, 
