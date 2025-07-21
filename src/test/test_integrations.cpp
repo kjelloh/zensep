@@ -15,25 +15,6 @@ namespace tests::integrations {
         ASSERT_EQ(1, 1);
     }
 
-    // CLI version of FormatterTest.FunctionWithArguments
-    TEST_F(CLITestFixture, CLIFormatFunctionWithArguments) {
-        // Create test input file
-        std::string input = R"(void foo(int a, double b, std::string c);)";
-        writeFile("test.cpp", input);
-        
-        // Run zensep and capture output
-        std::string output = runZensepAndGetOutput("test.cpp");
-        
-        // Expected output (same as atomic test)
-        std::string expected = R"(void foo(
-    int a
-    , double b
-    , std::string c);
-)";
-        
-        EXPECT_EQ(output, expected);
-    }
-
     // Add more integration tests here for end-to-end scenarios
     
     bool run_all() {

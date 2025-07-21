@@ -21,13 +21,11 @@ endif()
 find_package(spdlog REQUIRED)
 find_package(CLI11 REQUIRED)
 find_package(GTest REQUIRED)
-find_package(immer REQUIRED)
-find_package(pegtl REQUIRED)
 
 add_executable(zensep 
     src/zensep.cpp 
     src/main.cpp
-    src/format/orchestrator.cpp
+    src/format/Formatter.cpp
     src/test/test_runner.cpp
     src/test/test_atomics.cpp
     src/test/test_integrations.cpp
@@ -45,8 +43,6 @@ target_link_libraries(zensep
     CLI11::CLI11
     GTest::gtest
     GTest::gtest_main
-    immer::immer
-    taocpp::pegtl
 )
 
 
