@@ -6,6 +6,9 @@ build/
 workspace/
 cmake_preset.txt
 
+// vs_code_extension specific
+vs_code_extension/bin
+
 // Claude AI tooling
 
 // VSCode IDE
