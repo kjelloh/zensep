@@ -1,10 +1,13 @@
 // conan/cmake framework
 CMakeUserPresets.json
 
-// Project specific
+// Zensep Project specific
 build/
 workspace/
 cmake_preset.txt
+
+// Extension sub-project specific
+vs_code_extension/bin
 
 // Claude AI tooling
 
