@@ -10,10 +10,9 @@ namespace tests {
         std::cout << "Running all tests..." << std::endl;
 
         // Create and register global test environment
-        auto* testEnv = new fixtures::SharedCLIFixture();
+        auto* testEnv = new fixtures::GlobalCLIFixture();
         ::testing::AddGlobalTestEnvironment(testEnv);
 
-        
         // Initialize GoogleTest once at the top level
         ::testing::InitGoogleTest();
         

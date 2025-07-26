@@ -88,8 +88,8 @@ namespace zensep {
         options.line_range = parsed_range;
     }
 
-    Formatter formatter;
-    auto format_result = formatter.format(content, options);
+    auto formatter = zensep::make_formatter<NoOpFormatter>(options);
+    auto format_result = formatter->format(content);
     output_stream << format_result;
   }
 

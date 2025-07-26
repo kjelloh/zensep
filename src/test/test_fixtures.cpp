@@ -9,23 +9,23 @@
 
 namespace tests::fixtures {
 
-    // Static instance for SharedCLIFixture (defaults to nullptr)
-    SharedCLIFixture* SharedCLIFixture::instance = nullptr;
+    // Static instance for GlobalCLIFixture (defaults to nullptr)
+    GlobalCLIFixture* GlobalCLIFixture::instance = nullptr;
 
-    // SharedCLIFixture implementation
-    void SharedCLIFixture::SetUp() {
+    // GlobalCLIFixture implementation
+    void GlobalCLIFixture::SetUp() {
         rootTestDir = std::filesystem::temp_directory_path() / "zensep_test_env";
         std::filesystem::create_directories(rootTestDir);
         
         // Assume zensep executable is in current directory (we are run as 'zensep --test')
         zensepExecutable = std::filesystem::current_path() / "zensep";
         
-        std::cout << "SharedCLIFixture: Set up root test dir " << rootTestDir << std::endl;
-        std::cout << "SharedCLIFixture: Using zensep at " << zensepExecutable << std::endl;
+        std::cout << "GlobalCLIFixture: Set up root test dir " << rootTestDir << std::endl;
+        std::cout << "GlobalCLIFixture: Using zensep at " << zensepExecutable << std::endl;
     }
     
-    void SharedCLIFixture::TearDown() {
-        std::cout << "SharedCLIFixture: Tore down root test dir " << rootTestDir << std::endl;
+    void GlobalCLIFixture::TearDown() {
+        std::cout << "GlobalCLIFixture: Tore down root test dir " << rootTestDir << std::endl;
         // Clean up root test directory
         if (std::filesystem::exists(rootTestDir)) {
             std::filesystem::remove_all(rootTestDir);
@@ -34,8 +34,8 @@ namespace tests::fixtures {
     
     // CLITestFixture implementation
     void CLITestFixture::SetUp() {
-        // Use shared root directory from SharedCLIFixture
-        auto* env = SharedCLIFixture::getInstance();
+        // Use shared root directory from GlobalCLIFixture
+        auto* env = GlobalCLIFixture::getInstance();
         testDir = std::filesystem::path(env->getRootTestDir()) / ("test_" + std::to_string(std::rand()));
         std::filesystem::create_directories(testDir);
     }
@@ -46,8 +46,8 @@ namespace tests::fixtures {
     }
     
     std::string CLITestFixture::getZensepExecutable() {
-        // Use shared zensep path from SharedCLIFixture
-        return SharedCLIFixture::getInstance()->getZensepExecutable();
+        // Use shared zensep path from GlobalCLIFixture
+        return GlobalCLIFixture::getInstance()->getZensepExecutable();
     }
     
     std::filesystem::path CLITestFixture::getFullPath(const std::string& filename) {

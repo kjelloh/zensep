@@ -1,14 +1,15 @@
 #pragma once
+#include "../format/Formatter.hpp"
 #include <gtest/gtest.h>
 #include <filesystem>
 
 namespace tests::fixtures {
     // Shared test fixtures and utilities
 
-    // SharedCLIFixture class definition
-    class SharedCLIFixture : public ::testing::Environment {
+    // GlobalCLIFixture class definition
+    class GlobalCLIFixture : public ::testing::Environment {
     public:
-        SharedCLIFixture() { instance = this; }
+        GlobalCLIFixture() { instance = this; }
         
         void SetUp() override;
         void TearDown() override;
@@ -18,12 +19,12 @@ namespace tests::fixtures {
         const std::string& getZensepExecutable() const { return zensepExecutable; }
         
         // Static access method
-        static SharedCLIFixture* getInstance() { return instance; }
+        static GlobalCLIFixture* getInstance() { return instance; }
 
     private:
         std::string rootTestDir;
         std::string zensepExecutable;
-        static SharedCLIFixture* instance;
+        static GlobalCLIFixture* instance;
 
     };
     
