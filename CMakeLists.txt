@@ -27,7 +27,7 @@ find_package(pegtl REQUIRED)
 add_executable(zensep 
     src/zensep.cpp 
     src/main.cpp
-    src/format/orchestrator.cpp
+    src/format/Formatter.cpp
     src/test/test_runner.cpp
     src/test/test_atomics.cpp
     src/test/test_integrations.cpp

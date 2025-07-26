@@ -78,4 +78,4 @@ The project uses CMake presets managed by Conan. The active preset is stored in 
 - `src/main.cpp` - Main application entry point
 - `src/zensep.cpp` - Core formatting logic
 - `src/format/` - Formatting implementation module
-  - `src/format/orchestrator.hpp/cpp` - Main formatting orchestrator (scaffolding)
+  - `src/format/Formatter.hpp/cpp` - Main formatting Formatter (scaffolding)
