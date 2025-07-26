@@ -24,7 +24,7 @@ namespace zensep {
     // Output lines before the target range
     for (decltype(first_line_ix) i = 0; i < first_line_ix; ++i) {
       if (std::getline(in, entry)) {
-        output << entry << "\n";
+        // skip
       }
     }
     
@@ -41,7 +41,7 @@ namespace zensep {
 
     // Output remaining lines after the target range
     while (std::getline(in, entry)) {
-      output << entry << "\n";
+      // skip
     }
     
     return output.str();

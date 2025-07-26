@@ -139,7 +139,9 @@ function formatRangeSync(
     context: vscode.ExtensionContext, 
     outputChannel: vscode.OutputChannel
 ): vscode.TextEdit[] {
-    outputChannel.appendLine(`Zensep formatRangeSync called for ${document.fileName}, lines ${range.start.line + 1}:${range.end.line + 1}`);
+    outputChannel.appendLine(`=== RANGE FORMATTING ===`);
+    outputChannel.appendLine(`Zensep formatRangeSync called for ${document.fileName}`);
+    outputChannel.appendLine(`Range: lines ${range.start.line + 1}:${range.end.line + 1} (0-based: ${range.start.line}:${range.end.line})`);
     
     const config = vscode.workspace.getConfiguration('zensep');
     let executablePath = config.get<string>('executablePath');
@@ -153,6 +155,8 @@ function formatRangeSync(
         }
     }
 
+    outputChannel.appendLine(`Using executable: ${executablePath}`);
+
     try {
         const { execFileSync } = require('child_process');
         
@@ -161,13 +165,18 @@ function formatRangeSync(
         const endLine = range.end.line + 1;
         const linesArg = `${startLine}:${endLine}`;
         
+        const args = [document.fileName, '--lines', linesArg];
+        outputChannel.appendLine(`Executing command: ${executablePath} ${args.join(' ')}`);
+        
         // Run zensep with --lines option and capture stdout with the formatted content
-        const formattedContent = execFileSync(executablePath, [document.fileName, '--lines', linesArg], { 
+        const formattedContent = execFileSync(executablePath, args, { 
             encoding: 'utf8',
             timeout: 10000 // 10 second timeout
         });
         
         outputChannel.appendLine(`Zensep range formatting completed successfully for lines ${linesArg}`);
+        outputChannel.appendLine(`Formatted content length: ${formattedContent.length} chars`);
+        outputChannel.appendLine(`First 200 chars of output: ${formattedContent.substring(0, 200)}...`);
         
         // Create a TextEdit that replaces the selected range with the formatted content
         return [vscode.TextEdit.replace(range, formattedContent)];
@@ -180,6 +189,7 @@ function formatRangeSync(
 
 function formatDocumentSync(document: vscode.TextDocument, 
   context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): vscode.TextEdit[] {
+    outputChannel.appendLine(`=== DOCUMENT FORMATTING ===`);
     outputChannel.appendLine(`Zensep formatDocumentSync called for ${document.fileName}`);
     
     const config = vscode.workspace.getConfiguration('zensep');
@@ -194,16 +204,23 @@ function formatDocumentSync(document: vscode.TextDocument,
         }
     }
 
+    outputChannel.appendLine(`Using executable: ${executablePath}`);
+
     try {
         const { execFileSync } = require('child_process');
         
+        const args = [document.fileName];
+        outputChannel.appendLine(`Executing command: ${executablePath} ${args.join(' ')}`);
+        
         // Run zensep and capture stdout with the formatted content
-        const formattedContent = execFileSync(executablePath, [document.fileName], { 
+        const formattedContent = execFileSync(executablePath, args, { 
             encoding: 'utf8',
             timeout: 10000 // 10 second timeout
         });
         
         outputChannel.appendLine(`Zensep formatting completed successfully`);
+        outputChannel.appendLine(`Formatted content length: ${formattedContent.length} chars`);
+        outputChannel.appendLine(`First 200 chars of output: ${formattedContent.substring(0, 200)}...`);
         
         // Create a TextEdit that replaces the entire document with the formatted content
         const fullRange = new vscode.Range(
