@@ -2,6 +2,10 @@
 
 A separator-first C++ / C-languages code formatter
 
+Also see:
+
+* [VSCode Extension](vs_code_extension/README.md)
+
 ## Formatting Philosophy
 
 Zensep transforms C++ code to use a "separator-first" style where operators, commas, and other separators are placed at the beginning of lines rather than at the end. This approach improves readability by making the structure more visually apparent and reducing cognitive load when scanning code.
